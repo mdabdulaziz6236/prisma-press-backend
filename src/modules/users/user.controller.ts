@@ -77,6 +77,23 @@ const getMyProfile = catchAsync(async (req: Request, res: Response, next: NextFu
     })
 })
 
+const updateMyProfile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const payload = req.body
+    if(!payload){
+        throw new Error("No data provided for update")
+    }
+    const updatedProfile = await userService.updateMyProfileInDB(req.user?.id as string, payload)
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "User profile updated successfully",
+        data: { updatedProfile }
+    })
+})
+
+
 const getAllUsers = (req: Request, res: Response) => {
 
     const user = userService.getAllUsersFromDB
@@ -91,7 +108,9 @@ const getAllUsers = (req: Request, res: Response) => {
     })
 }
 export const userController = {
-    registerUser, getMyProfile,
+    registerUser,
+    getMyProfile,
+    updateMyProfile,
     getAllUsers
 }
 

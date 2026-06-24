@@ -53,19 +53,44 @@ const getProfileFromDB = (userId: string) => {
     })
     return user
 }
-const getAllUsersFromDB = await prisma.user.findMany({
-    select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
-        profile: true,
+
+const updateMyProfileInDB = async (userId: string, payload: any) => {
+    const { name, email, profilePhoto, bio } = payload
+    const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: {
+            name,
+            email,
+            profile: {
+                update: {
+                    profilePhoto, bio
+                }
+            }
+        },omit: {
+                password: true
+            }, include:
+                { profile: true }
+    })
+    return updatedUser }
+
+    const getAllUsersFromDB = await prisma.user.findMany({
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            createdAt: true,
+            profile: true,
+        }
+
+    })
+
+
+
+
+    export const userService = {
+        registerUserIntoDB,
+        getProfileFromDB,
+        updateMyProfileInDB,
+        getAllUsersFromDB
     }
-})
-
-
-export const userService = {
-    registerUserIntoDB, getProfileFromDB,
-    getAllUsersFromDB
-}

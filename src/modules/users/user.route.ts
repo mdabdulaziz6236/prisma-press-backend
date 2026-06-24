@@ -1,10 +1,10 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { Router } from "express";
 
 import { userController } from "./user.controller";
-import { jwtUtils } from "../../utils/jwt";
-import config from "../../config";
+
 import { Role } from "../../../generated/prisma/enums";
-import httpStatus from "http-status";
+
+import { auth } from "../../middlewares/auth";
 
 declare global {
     namespace Express {
@@ -25,33 +25,39 @@ const router = Router();
 router.post('/register', userController.registerUser
 )
 
-router.get('/me', (req: Request, res: Response, next: NextFunction) => {
-    const { accessToken } = req.cookies
-    const verifyToken = jwtUtils.verifyToken(accessToken, config.jwt_access_secret)
+router.get('/me',
 
-    if (typeof verifyToken === 'string') {
-        throw new Error(verifyToken)
-    }
-    const { id, name, email, role } = verifyToken
-    // const requiredRoles = [ 'ADMIN','USER','AUTHOR']
-    const requiredRoles = [Role.ADMIN, Role.AUTHOR, Role.USER]
-    if (!requiredRoles.includes(role)) {
-        return res.status(403).json({
-            success: false,
-            statusCode: httpStatus.FORBIDDEN,
-            message: "Forbidden! "
-        })
-    }
 
-    req.user = {
-        id,
-        name,
-        email,
-        role
-    }
+    //     (req: Request, res: Response, next: NextFunction) => {
+    //     const { accessToken } = req.cookies
+    //     const verifyToken = jwtUtils.verifyToken(accessToken, config.jwt_access_secret)
 
-    next()
-}, userController.getMyProfile)
+    //     if (!verifyToken.success) {
+    //         throw new Error(verifyToken.message)
+    //     }
+    //     const { id, name, email, role } = verifyToken.data as JwtPayload
+    //     // const requiredRoles = [ 'ADMIN','USER','AUTHOR']
+    //     const requiredRoles = [Role.ADMIN, Role.AUTHOR, Role.USER]
+    //     if (!requiredRoles.includes(role)) {
+    //         return res.status(403).json({
+    //             success: false,
+    //             statusCode: httpStatus.FORBIDDEN,
+    //             message: "Forbidden! "
+    //         })
+    //     }
+
+    //     req.user = {
+    //         id,
+    //         name,
+    //         email,
+    //         role
+    //     }
+
+    //     next()
+    // }
+
+
+    auth(Role.ADMIN, Role.AUTHOR, Role.USER), userController.getMyProfile)
 router.get('/', userController.getAllUsers)
 
 

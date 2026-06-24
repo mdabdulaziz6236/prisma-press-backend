@@ -11,10 +11,14 @@ const loginUser = async (payload: ILoginUser) => {
             email
         }
     })
+    
     const isPasswordMacthed = await bcrypt.compare(password, user.password)
     if (!isPasswordMacthed) {
         throw new Error("Password is incorrect")
     }
+    if(user.activeStatus === 'BLOCKED'){
+            throw new Error("Your account has been blocked. Please contact support for more information.")
+        }
     const jwtPayload = {
         id: user.id,
         name: user.name,

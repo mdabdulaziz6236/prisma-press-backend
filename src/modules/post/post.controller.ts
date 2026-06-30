@@ -20,7 +20,7 @@ const createPost = catchAsync(async (req: Request, res: Response, next: NextFunc
 
 
 const getAllPosts = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-const result = await postService.getAllPosts()
+    const result = await postService.getAllPosts()
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
@@ -40,7 +40,20 @@ const getMyPosts = catchAsync(async (req: Request, res: Response, next: NextFunc
 
 const getPostById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
+    const postId = req.params.postId
+    if (!postId) {
+        throw new Error("Post ID is required in params")
+
+    }
+    const result = await postService.getPostById(postId as string)
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Post fetched successfully",
+        data: result
+    })
 })
+
 const updatePost = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
 })

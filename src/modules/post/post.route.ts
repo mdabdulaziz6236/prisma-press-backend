@@ -17,7 +17,7 @@ router.get('/my-posts', auth(Role.ADMIN, Role.AUTHOR, Role.USER), postController
 
 router.get('/:postId', postController.getPostById)
 
-router.patch('/:PostId', auth(Role.ADMIN, Role.AUTHOR, Role.USER), postController.updatePost)
+router.patch('/:postId', auth(Role.ADMIN, Role.AUTHOR, Role.USER), postController.updatePost)
 
 router.delete('/:postId', auth(Role.ADMIN, Role.AUTHOR, Role.USER), postController.deletePost)
 

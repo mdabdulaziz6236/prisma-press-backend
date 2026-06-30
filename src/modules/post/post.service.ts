@@ -43,12 +43,14 @@ const getPostById = async (postId: string) => {
                 increment: 1
             }
         },
-        include: { author:{
-            omit: {
-                password: true,
-            }
-        },
-             comments: true }
+        include: {
+            author: {
+                omit: {
+                    password: true,
+                }
+            },
+            comments: true
+        }
     })
 
     return updatedPost
@@ -66,8 +68,30 @@ const getPostsStats = () => {
 
 }
 
-const getMyPosts = () => {
+const getMyPosts = (userId: string) => {
+    const result = prisma.post.findMany({
+        where: {
+            authorId: userId
+        },
+        orderBy: {
+            createdAt: "desc"
+        },
+        include: {
+            comments: true,
+            author: {
+                omit: {
+                    password: true,
+                }
+            },
+            _count: {
+                select: {
+                    comments: true
+                }
+            }
+        }
+    })
 
+    return result
 }
 
 

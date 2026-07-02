@@ -1,3 +1,4 @@
+import { CommentStatus } from "../../../generated/prisma/enums"
 import { prisma } from "../../lib/prisma"
 import { ICreatePostPayload, IUpdatePostPayload } from "./post.interface"
 
@@ -28,35 +29,55 @@ const getAllPosts = async () => {
 }
 
 const getPostById = async (postId: string) => {
-    const post = await prisma.post.findUniqueOrThrow({
-        where: {
-            id: postId
-        }
-    })
-
-    const updatedPost = await prisma.post.update({
-        where: {
-            id: postId
-        },
-        data: {
-            views: {
-                increment: 1
-            }
-        },
-        include: {
-            author: {
-                omit: {
-                    password: true,
+    const transactionResult = await prisma.$transaction(
+        async (tx) => {
+            await tx.post.update({
+                where: {
+                    id: postId
+                },
+                data: {
+                    views: {
+                        increment: 1
+                    }
                 }
-            },
-            comments: true
-        }
-    })
+            })
+// throw new Error("Fake Error")
+            const post = await tx.post.findUniqueOrThrow({
+                where: {
+                    id: postId
+                },
+                include: {
+                    author: {
+                        omit: {
+                            password: true
+                        }
+                    }, comments: {
+                        where: {
+                            status: CommentStatus.APPROVED
+                        }, orderBy: {
+                            createdAt: "desc"
+                        }
+                    },
+                    _count: {
+                        select: {
+                            comments: true
+                        }
+                    }
+                }
+            }
+            )
+            return post
 
-    return updatedPost
+        }
+    )
+
+    return transactionResult
 }
 
+
+
 const updatePost = async (payload: IUpdatePostPayload, postId: string, authorId: string, isAdmin: boolean) => {
+    // Check if the post exists and if the user is the owner or an admin
     const post = await prisma.post.findUniqueOrThrow({
         where: {
             id: postId

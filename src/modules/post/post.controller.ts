@@ -31,7 +31,13 @@ const getAllPosts = catchAsync(async (req: Request, res: Response, next: NextFun
 
 
 const getPostsStats = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-
+    const result = await postService.getPostsStats()
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Posts stats retrieved successfully",
+        data: result
+    })
 })
 
 const getMyPosts = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -90,8 +96,9 @@ const deletePost = catchAsync(async (req: Request, res: Response, next: NextFunc
     const isAdmin = req.user?.role === 'ADMIN'
 
     if (!postId) {
-        throw new Error("Post ID is required in params")}
- await postService.deletePost(postId as string, authorId as string, isAdmin)
+        throw new Error("Post ID is required in params")
+    }
+    await postService.deletePost(postId as string, authorId as string, isAdmin)
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,

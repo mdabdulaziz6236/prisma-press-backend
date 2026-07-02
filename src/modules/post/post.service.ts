@@ -1,4 +1,4 @@
-import { CommentStatus } from "../../../generated/prisma/enums"
+import { CommentStatus, PostStatus } from "../../../generated/prisma/enums"
 import { prisma } from "../../lib/prisma"
 import { ICreatePostPayload, IUpdatePostPayload } from "./post.interface"
 
@@ -41,7 +41,7 @@ const getPostById = async (postId: string) => {
                     }
                 }
             })
-// throw new Error("Fake Error")
+            // throw new Error("Fake Error")
             const post = await tx.post.findUniqueOrThrow({
                 where: {
                     id: postId
@@ -128,9 +128,120 @@ const deletePost = async (postId: string, authorId: string, isAdmin: boolean) =>
 
 }
 
-const getPostsStats = () => {
+const getPostsStats = async () => {
+    const transactionResult = await prisma.$transaction(
+        async (tx) => {
+            // const totalPosts = await tx.post.count()
+            // const totalPublishedPosts = await tx.post.count({
+            //     where: {
+            //         status: PostStatus.PUBLISHED
+            //     }
+            // })
+            // const totalDraftPosts = await tx.post.count({
+            //     where: {
+            //         status: PostStatus.DRAFT
+            //     }
+            // })
+            // const totalArchivedPosts = await tx.post.count({
+            //     where: {
+            //         status: PostStatus.ARCHIVED
+            //     }
+            // })
 
+            // const totalComments = await tx.comment.count()
+            // const totalApprovedComments = await tx.comment.count({
+            //     where: {
+            //         status: CommentStatus.APPROVED
+            //     }
+            // })
+
+            // const totalRejectedComments = await tx.comment.count({
+            //     where: {
+            //         status: CommentStatus.REJECT
+            //     }
+            // })
+
+            // const totalPostsViewsAggregate = await tx.post.aggregate({
+            //     _sum: {
+            //         views: true
+            //     }
+            // })
+            // const totalPostsViews = totalPostsViewsAggregate._sum.views
+            // return {
+            //     totalPosts,
+            //     totalPublishedPosts,
+            //     totalDraftPosts,
+            //     totalArchivedPosts,
+            //     totalComments,
+            //     totalApprovedComments,
+            //     totalRejectedComments,
+            //     totalPostsViews
+            // }
+
+            const [
+                totalPosts,
+                totalPublishedPosts,
+                totalDraftPosts,
+                totalArchivedPosts,
+                totalComments,
+                totalApprovedComments,
+                totalRejectedComments,
+                totalPostsViewsAggregate
+            ] = await Promise.all([
+                await tx.post.count(),
+                await tx.post.count({
+                    where: {
+                        status: PostStatus.PUBLISHED
+                    }
+                }),
+                await tx.post.count({
+                    where: {
+                        status: PostStatus.DRAFT
+                    }
+                }),
+                await tx.post.count({
+                    where: {
+                        status: PostStatus.ARCHIVED
+                    }
+                }),
+                await tx.comment.count(),
+                await tx.comment.count({
+                    where: {
+                        status: CommentStatus.APPROVED
+                    }
+                }),
+                await tx.comment.count({
+                    where: {
+                        status: CommentStatus.REJECT
+                    }
+                }),
+                await tx.post.aggregate({
+                    _sum: {
+                        views: true
+                    }
+                }),
+
+            ])
+
+            return {
+                totalPosts,
+                totalPublishedPosts,
+                totalDraftPosts,
+                totalArchivedPosts,
+                totalComments,
+                totalApprovedComments,
+                totalRejectedComments,
+                totalPostsViews: totalPostsViewsAggregate._sum.views
+            }
+
+        }
+
+
+    );
+
+    return transactionResult
 }
+
 
 const getMyPosts = (userId: string) => {
     const result = prisma.post.findMany({

@@ -22,8 +22,8 @@ const getAllPosts = async (query: IPostQuery) => {
     const skip = (page - 1) * limit;
     const sortBy = query.sortBy ? query.sortBy : 'createdAt'
     const sortOrder = query.sortOrder ? query.sortOrder : 'desc';
-    const tags = query.tags? JSON.parse(query.tags as string) :null
-    const tagsArray = Array.isArray(tags)?tags:[]
+    const tags = query.tags ? JSON.parse(query.tags as string) : null
+    const tagsArray = Array.isArray(tags) ? tags : []
     const andConditions: PostWhereInput[] = []
     if (query.searchTerm) {
         andConditions.push({

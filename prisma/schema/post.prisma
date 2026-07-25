@@ -8,10 +8,13 @@ model Post {
   tags       String[]
   views      Int        @default(0)
   createdAt  DateTime   @default(now()) @map("createdAT")
-  updatedAt  DateTime   @updatedAt @map("updatedAT")
-  authorId   String
-  author     User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  comments   Comment[]
+
+  isPremium Boolean @default(false)
+
+  updatedAt DateTime  @updatedAt @map("updatedAT")
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments  Comment[]
 
   @@index([authorId])
   @@map("posts")

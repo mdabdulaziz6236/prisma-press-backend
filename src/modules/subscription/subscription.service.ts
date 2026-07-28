@@ -3,7 +3,10 @@ import config from "../../config";
 import { prisma } from "../../lib/prisma";
 import { stripe } from "../../lib/stripe";
 import { SubscriptionStatus } from "../../../generated/prisma/enums";
-import { handleChangeSubscription, handleCheckoutCompleted } from "./subscription.utils";
+import {
+  handleChangeSubscription,
+  handleCheckoutCompleted,
+} from "./subscription.utils";
 
 const createCheckoutSession = async (userId: string) => {
   const transactionResult = await prisma.$transaction(async (tx) => {
@@ -65,9 +68,9 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
       break;
     case "customer.subscription.updated":
       // Occurs whenever a subscription changes (e.g., switching from one plan to another, or changing the status from trial to active).
-      await handleChangeSubscription(event.data.object)
+      await handleChangeSubscription(event.data.object);
 
-    /* 
+      /* 
     To Test this run this command in terminal
     stripe subscription cancel .....(paste the existing subscribed sub id)
     */
@@ -76,7 +79,7 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
     // const paymentObject =
     case "customer.subscription.deleted":
       // Occurs whenever a customer’s subscription ends.
-      await handleChangeSubscription(event.data.object)
+      await handleChangeSubscription(event.data.object);
 
       break;
     default:
@@ -86,9 +89,27 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
   }
 };
 
+const getSubscriptionStatus = async (userId: string) => {
+  const isSubscriptionExist = await prisma.subscription.findUniqueOrThrow({
+    where: {
+      userId,
+    },
+  });
 
+  const isActive =
+    isSubscriptionExist.status === "ACTIVE" &&
+    isSubscriptionExist.currentPeriodEnd &&
+    new Date(isSubscriptionExist.currentPeriodEnd) > new Date();
+
+  return {
+    status: isSubscriptionExist.status,
+    isSubscribed: isActive,
+    currentPeriodEnd: isSubscriptionExist.currentPeriodEnd,
+  };
+};
 
 export const subscriptionServices = {
   createCheckoutSession,
   handleWebhook,
+  getSubscriptionStatus,
 };

@@ -10,7 +10,7 @@ router.post('/', auth(Role.USER, Role.ADMIN, Role.AUTHOR), commentController.cre
 
 router.get('/author/:authorId', commentController.getAllCommentByAuthorId)
 
-router.get('/:commentId', commentController.getAllCommentByCommentId)
+router.get('/:postId', commentController.getAllCommentByPostId)
 
 router.patch('/:commentId', auth(Role.USER, Role.ADMIN, Role.AUTHOR), commentController.updateComment)
 

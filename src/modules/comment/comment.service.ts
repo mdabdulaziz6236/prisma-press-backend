@@ -42,22 +42,13 @@ const getAllCommentByAuthorId = async (authorId: string) => {
     return comments
 }
 
-const getAllCommentByCommentId = async (commentId: string) => {
-    const comment = await prisma.comment.findUnique({
+const getAllCommentByPostId = async (postId: string) => {
+    const comments = await prisma.comment.findUnique({
         where: {
-            id: commentId
-        },
-        include: {
-            post: {
-                select: {
-                    id: true,
-                    title: true,
-                    views: true,
-                }
-            }
+            id: postId
         }
     })
-    return comment
+    return comments
 }
 
 const updateComment = async (commentId: string, data: IUpdateCommentPayload, authorId: string) => {
@@ -111,7 +102,7 @@ const deleteComment = async (commentId: string, authorId: string) => {
     return comment
 }
 
-const modarateComment = async (commentId: string, data: IModerateCommentPayload) => {
+const moderateComment = async (commentId: string, data: IModerateCommentPayload) => {
 
     const commentData = await prisma.comment.findFirstOrThrow({
         where: {
@@ -139,8 +130,8 @@ const modarateComment = async (commentId: string, data: IModerateCommentPayload)
 export const commentService = {
     createComment,
     getAllCommentByAuthorId,
-    getAllCommentByCommentId,
+    getAllCommentByPostId,
     updateComment,
     deleteComment,
-    modarateComment
+    moderateComment
 }

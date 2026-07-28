@@ -28,9 +28,9 @@ const getAllCommentByAuthorId = catchAsync(async (req: Request, res: Response, n
 
 })
 
-const getAllCommentByCommentId = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const { commentId } = req.params
-    const result = await commentService.getAllCommentByCommentId(commentId as string)
+const getAllCommentByPostId = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { postId } = req.params
+    const result = await commentService.getAllCommentByPostId(postId as string)
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
@@ -69,7 +69,7 @@ const deleteComment = catchAsync(async (req: Request, res: Response, next: NextF
 const moderateComment = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { commentId } = req.params;
     const payload = req.body;
-    const result = await commentService.modarateComment(commentId as string, payload);
+    const result = await commentService.moderateComment(commentId as string, payload);
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
@@ -82,7 +82,7 @@ const moderateComment = catchAsync(async (req: Request, res: Response, next: Nex
 export const commentController = {
     createComment,
     getAllCommentByAuthorId,
-    getAllCommentByCommentId,
+    getAllCommentByPostId,
     updateComment,
     deleteComment,
     moderateComment
